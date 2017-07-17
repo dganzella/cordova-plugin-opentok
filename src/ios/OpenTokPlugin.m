@@ -282,7 +282,14 @@
 		}
 		else {
 			NSLog(@"Session.publish done");
-		}		
+			
+			faceRecognition = [NSTimer scheduledTimerWithTimeInterval:.1
+			target:self
+			selector:@selector(recognizeFace:)
+			userInfo:nil
+			repeats:YES];
+		}
+		
 
         CDVPluginResult* pluginResult = error ?
         [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"%@ PUBLISH %@", [error localizedDescription], _publisher == nil ? @"PUBLISHER NIL" : @"PUBLISHER NOT NIL"]] :
@@ -303,6 +310,9 @@
         }
         else {
             NSLog(@"Session.unpublish done");
+			
+			[faceRecognition invalidate];
+			faceRecognition = nil;
         }
         
         CDVPluginResult* pluginResult = error ?
@@ -619,7 +629,70 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
 }
 
+-(void)recognizeFace:(CDVInvokedUrlCommand*)command
+{
+	CDVPluginResult* pluginResult;
+	
+	if(_publisher != nil)
+	{
+	    Mat opencv = [self cvMatWithImage: [self imageForView: _publisher.view]];
+		
+		//processing here
 
+		NSMutableDictionary * eyedict = [[NSMutableDictionary alloc]initWithCapacity:2];
+		
+		[dict setObject:[NSNumber numberWithFloat:.3] forKey:@"leftEyeX"];
+		[dict setObject:[NSNumber numberWithFloat:.3] forKey:@"leftEyeY"];
+		[dict setObject:[NSNumber numberWithFloat:.6] forKey:@"rightEyeX"];
+		[dict setObject:[NSNumber numberWithFloat:.3] forKey:@"rightEyeY"];
+		
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary: eyedict];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+	}	
+	
+	pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"PUBLISHER IS NULL, NO HEAD TRACKING"]];
+	[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+-(UIImage *)imageForView:(UIView *)view
+{
+  UIGraphicsBeginImageContext(view.frame.size);
+  [view.layer renderInContext: UIGraphicsGetCurrentContext()];
+  UIImage *retval = UIGraphicsGetImageFromCurrentImageContext(void);
+  UIGraphicsEndImageContext();
+
+  return retval;
+}
+
+-(Mat)cvMatWithImage:(UIImage *)image
+{
+    CGColorSpaceRef colorSpace = CGImageGetColorSpace(image.CGImage);
+    size_t numberOfComponents = CGColorSpaceGetNumberOfComponents(colorSpace);
+    CGFloat cols = image.size.width;
+    CGFloat rows = image.size.height;
+
+    cv::Mat cvMat(rows, cols, CV_8UC4); // 8 bits per component, 4 channels
+    CGBitmapInfo bitmapInfo = kCGImageAlphaNoneSkipLast | kCGBitmapByteOrderDefault;
+
+    // check whether the UIImage is greyscale already
+    if (numberOfComponents == 1){
+        cvMat = cv::Mat(rows, cols, CV_8UC1); // 8 bits per component, 1 channels
+        bitmapInfo = kCGImageAlphaNone | kCGBitmapByteOrderDefault;
+    } 
+
+    CGContextRef contextRef = CGBitmapContextCreate(cvMat.data,             // Pointer to backing data
+                                                cols,                       // Width of bitmap
+                                                rows,                       // Height of bitmap
+                                                8,                          // Bits per component
+                                                cvMat.step[0],              // Bytes per row
+                                                colorSpace,                 // Colorspace
+                                                bitmapInfo);              // Bitmap info flags
+
+    CGContextDrawImage(contextRef, CGRectMake(0, 0, cols, rows), image.CGImage);
+    CGContextRelease(contextRef);
+
+    return cvMat;
+}
 
 /***** Notes
  

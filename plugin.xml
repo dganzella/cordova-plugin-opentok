@@ -26,12 +26,13 @@
         <uses-feature android:name="android.hardware.camera.autofocus" android:required="true" />
       </config-file>
 
-      <!-- copy opentok sdk -->
-      <!-- <source-file src="src/android/libs/opentok-android-sdk-2.5.0.jar" target-dir="libs/" />
-      <source-file src="src/android/libs/armeabi/libopentok.so" target-dir="libs/armeabi" />
-      <source-file src="src/android/libs/armeabi/libopentok.so" target-dir="libs/armeabi-v7a" />
-      <source-file src="src/android/libs/x86/libopentok.so" target-dir="libs/x86" /> -->
+      <!-- copy opentok sdk android -->      
       <source-file src="src/android/libs/opentok-android-sdk-2.9.0.aar" target-dir="libs/" />
+	
+	  <!-- copy opencv2 sdk android -->   
+      <source-file src="src/android/libs/armeabi/libopencv_java3.so" target-dir="libs/armeabi" />
+      <source-file src="src/android/libs/armeabi-v7a/libopencv_java3.so" target-dir="libs/armeabi-v7a" />	
+	  <source-file src="src/android/libs/x86/libopencv_java3.so" target-dir="libs/x86" />
 
       <config-file target="config.xml" parent="/*">
         <feature name="OpenTokPlugin">
@@ -55,12 +56,16 @@
       <framework src="libpthread.dylib" />
       <framework src="VideoToolbox.framework" />
       <framework src="src/ios/OpenTok.framework" custom="true" />
+	  <framework src="src/ios/opencv2.framework" custom="true" />
       <framework src="AudioToolbox.framework" />
       <framework src="CoreData.framework" />
       <framework src="AVFoundation.framework" />
       <framework src="CoreGraphics.framework" />
       <framework src="CoreMedia.framework" />
       <framework src="CoreVideo.framework" />
+	  <framework src="CoreImage.framework" />
+	  <framework src="AssetsLibrary.framework" />
+	  <framework src="Accelerate.framework" />
       <framework src="OpenGLES.framework" />
       <framework src="SystemConfiguration.framework" />
       <framework src="CoreTelephony.framework" />
