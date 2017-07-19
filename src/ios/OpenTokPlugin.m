@@ -32,6 +32,9 @@ const bool isVideoOnBackground = true;
 	{
 		self.webView.superview.backgroundColor = [UIColor whiteColor]; //app background
 		[self.webView.superview setOpaque:NO];
+		
+		self.webView.backgroundColor = [UIColor clearColor];
+		[self.webView setOpaque:NO];	
 	}	
 }
 - (void)addEvent:(CDVInvokedUrlCommand*)command{
@@ -111,9 +114,6 @@ const bool isVideoOnBackground = true;
 				
 				[_publisher.view setFrame:CGRectMake(left, top, width, height)];
 				_publisher.view.layer.zPosition = 1;
-				
-				self.webView.backgroundColor = [UIColor clearColor];
-				[self.webView setOpaque:NO];	
 			}
 			else
 			{
@@ -361,10 +361,7 @@ const bool isVideoOnBackground = true;
 	{
 		[self.webView.superview insertSubview:sub.view atIndex:0];
 		self.webView.layer.zPosition = 999;
-		sub.view.layer.zPosition = 1;
-		
-		self.webView.backgroundColor = [UIColor clearColor];
-		[self.webView setOpaque:NO];	
+		sub.view.layer.zPosition = 1;	
 	}
 	else
 	{
