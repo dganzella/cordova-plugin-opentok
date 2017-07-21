@@ -662,23 +662,26 @@ const bool isVideoOnBackground = true;
 		
 		for (CIFaceFeature *f in features)
 		{
-			if (f.hasLeftEyePosition) {
+			if (f.hasLeftEyePosition)
+			{
 				NSLog(@"Left eye %g %g", f.leftEyePosition.x, f.leftEyePosition.y);
 				
-				[featuresdict setObject:[NSNumber numberWithFloat:f.leftEyePosition.x] forKey:@"leftEyeX"];
-				[featuresdict setObject:[NSNumber numberWithFloat:f.leftEyePosition.y] forKey:@"leftEyeY"];
+				[featuresdict setObject:[NSNumber numberWithFloat:((f.leftEyePosition.x/opentokframe.size.width)*100.0)] forKey:@"leftEyeX"];
+				[featuresdict setObject:[NSNumber numberWithFloat:((f.leftEyePosition.y/opentokframe.size.height)*100.0)] forKey:@"leftEyeY"];
 			}
-			if (f.hasRightEyePosition) {
+			if (f.hasRightEyePosition)
+			{
 				NSLog(@"Right eye %g %g", f.rightEyePosition.x, f.rightEyePosition.y);
 				
-				[featuresdict setObject:[NSNumber numberWithFloat:f.rightEyePosition.x] forKey:@"rightEyeX"];
-				[featuresdict setObject:[NSNumber numberWithFloat:f.rightEyePosition.y] forKey:@"rightEyeY"];
+				[featuresdict setObject:[NSNumber numberWithFloat:((f.rightEyePosition.x/opentokframe.size.width)*100.0)] forKey:@"rightEyeX"];
+				[featuresdict setObject:[NSNumber numberWithFloat:((f.rightEyePosition.y/opentokframe.size.height)*100.0)] forKey:@"rightEyeY"];
 			}
-			if (f.hasMouthPosition) {
+			if (f.hasMouthPosition)
+			{
 				NSLog(@"Mouth %g %g", f.mouthPosition.x, f.mouthPosition.y);
 				
-				[featuresdict setObject:[NSNumber numberWithFloat:f.mouthPosition.x] forKey:@"mouthX"];
-				[featuresdict setObject:[NSNumber numberWithFloat:f.mouthPosition.y] forKey:@"mouthY"];
+				[featuresdict setObject:[NSNumber numberWithFloat:((f.mouthPosition.x/opentokframe.size.width)*100.0)] forKey:@"mouthX"];
+				[featuresdict setObject:[NSNumber numberWithFloat:((f.mouthPosition.y/opentokframe.size.height)*100.0)] forKey:@"mouthY"];
 			}
 		}
 		
