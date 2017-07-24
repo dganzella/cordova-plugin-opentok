@@ -637,6 +637,18 @@ const bool isVideoOnBackground = true;
     [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
 }
 
+- (UIImage *) screenShotImageWithView :(UIView *) view
+{
+    UIGraphicsBeginImageContextWithOptions(view.bounds.size, NO, [UIScreen mainScreen].scale);
+    
+    [view drawViewHierarchyInRect:view.bounds afterScreenUpdates:YES];
+    
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return image;
+}
+
+
 -(void)recognizeFace:(CDVInvokedUrlCommand*)command
 {
 	CDVPluginResult* pluginResult;
@@ -645,62 +657,60 @@ const bool isVideoOnBackground = true;
 	{
 		CIContext *context = [CIContext context];
 		
-		NSDictionary *opts = @{ CIDetectorAccuracy : CIDetectorAccuracyLow };
+		NSDictionary *opts = @{ CIDetectorAccuracy : CIDetectorAccuracyHigh };
 		
 		CIDetector *detector = [CIDetector detectorOfType:CIDetectorTypeFace
 												  context:context
 												  options:opts];
-												  
-		UIImage * opentokframe = [self imageForView: _publisher.view];
-		 
-		opts = @{ CIDetectorImageOrientation :
-          [[opentokframe.CIImage properties] valueForKey:kCGImagePropertyOrientation] };
-		
-		NSArray *features = [detector featuresInImage:opentokframe.CIImage options:opts];
+						
+        UIImage * opentokframe = [self screenShotImageWithView: _publisher.view];
 
-		NSMutableDictionary * featuresdict = [[NSMutableDictionary alloc] initWithCapacity:6];
-		
-		for (CIFaceFeature *f in features)
-		{
-			if (f.hasLeftEyePosition)
-			{
-				NSLog(@"Left eye %g %g", f.leftEyePosition.x, f.leftEyePosition.y);
-				
-				[featuresdict setObject:[NSNumber numberWithFloat:((f.leftEyePosition.x/opentokframe.size.width)*100.0)] forKey:@"leftEyeX"];
-				[featuresdict setObject:[NSNumber numberWithFloat:((f.leftEyePosition.y/opentokframe.size.height)*100.0)] forKey:@"leftEyeY"];
-			}
-			if (f.hasRightEyePosition)
-			{
-				NSLog(@"Right eye %g %g", f.rightEyePosition.x, f.rightEyePosition.y);
-				
-				[featuresdict setObject:[NSNumber numberWithFloat:((f.rightEyePosition.x/opentokframe.size.width)*100.0)] forKey:@"rightEyeX"];
-				[featuresdict setObject:[NSNumber numberWithFloat:((f.rightEyePosition.y/opentokframe.size.height)*100.0)] forKey:@"rightEyeY"];
-			}
-			if (f.hasMouthPosition)
-			{
-				NSLog(@"Mouth %g %g", f.mouthPosition.x, f.mouthPosition.y);
-				
-				[featuresdict setObject:[NSNumber numberWithFloat:((f.mouthPosition.x/opentokframe.size.width)*100.0)] forKey:@"mouthX"];
-				[featuresdict setObject:[NSNumber numberWithFloat:((f.mouthPosition.y/opentokframe.size.height)*100.0)] forKey:@"mouthY"];
-			}
-		}
-		
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary: featuresdict];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        CIImage * finalimage = [[CIImage alloc] initWithCGImage: opentokframe.CGImage options:nil];
+                                                                //1 means landscape and not inverted
+        NSDictionary * optsfeatures = [NSDictionary dictionaryWithObject: [NSNumber numberWithInt:1] forKey: CIDetectorImageOrientation];
+            
+        NSArray * features = [detector featuresInImage:finalimage options:optsfeatures];
+
+        float finalwidth = CGImageGetWidth(opentokframe.CGImage);
+        float finalheight = CGImageGetHeight(opentokframe.CGImage);
+        
+        //NSLog(@"Final image width height %g %g", finalwidth, finalheight);
+        
+        if(features.count > 0)
+        {
+            CIFaceFeature * face = features[0];
+            
+            if (face.hasLeftEyePosition && face.hasRightEyePosition)
+            {
+                NSMutableDictionary * featuresdict = [[NSMutableDictionary alloc] initWithCapacity:4];
+                
+                [featuresdict setObject:[NSNumber numberWithFloat:((face.leftEyePosition.x/finalwidth)*100.0)] forKey:@"leftEyeX"];
+                [featuresdict setObject:[NSNumber numberWithFloat:((face.leftEyePosition.y/finalheight)*100.0)] forKey:@"leftEyeY"];
+                
+                [featuresdict setObject:[NSNumber numberWithFloat:((face.rightEyePosition.x/finalwidth)*100.0)] forKey:@"rightEyeX"];
+                [featuresdict setObject:[NSNumber numberWithFloat:((face.rightEyePosition.y/finalheight)*100.0)] forKey:@"rightEyeY"];
+                
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary: featuresdict];
+                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+            }
+            else
+            {
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"COULDNT FIND EYES"]];
+                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+            }
+        }
+        else
+        {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"NO FACE DETECTED"]];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        }
 	}	
-	
-	pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"PUBLISHER IS NULL, NO HEAD TRACKING"]];
-	[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-}
-
--(UIImage *)imageForView:(UIView *)view
-{
-  UIGraphicsBeginImageContext(view.frame.size);
-  [view.layer renderInContext: UIGraphicsGetCurrentContext()];
-  UIImage *retval = UIGraphicsGetImageFromCurrentImageContext();
-  UIGraphicsEndImageContext();
-
-  return retval;
+    else
+    {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"PUBLISHER IS NULL, NO HEAD TRACKING"]];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }
+    
 }
 
 /***** Notes
@@ -720,4 +730,3 @@ const bool isVideoOnBackground = true;
 
 
 @end
-
