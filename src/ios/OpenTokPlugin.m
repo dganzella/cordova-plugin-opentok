@@ -27,15 +27,15 @@ const bool isVideoOnBackground = true;
 -(void) pluginInitialize
 {
     callbackList = [[NSMutableDictionary alloc] init];
-	
-	if(isVideoOnBackground)
-	{
-		self.webView.superview.backgroundColor = [UIColor whiteColor]; //app background
-		[self.webView.superview setOpaque:NO];
-		
-		self.webView.backgroundColor = [UIColor clearColor];
-		[self.webView setOpaque:NO];	
-	}	
+    
+    if(isVideoOnBackground)
+    {
+        self.webView.superview.backgroundColor = [UIColor whiteColor]; //app background
+        [self.webView.superview setOpaque:NO];
+        
+        self.webView.backgroundColor = [UIColor clearColor];
+        [self.webView setOpaque:NO];
+    }
 }
 - (void)addEvent:(CDVInvokedUrlCommand*)command{
     NSString* event = [command.arguments objectAtIndex:0];
@@ -56,7 +56,7 @@ const bool isVideoOnBackground = true;
 // Called by TB.initsession()
 -(void)initSession:(CDVInvokedUrlCommand*)command{
     NSLog(@"initSession...");
-
+    
     // Get Parameters
     NSString* apiKey = [command.arguments objectAtIndex:0];
     NSString* sessionId = [command.arguments objectAtIndex:1];
@@ -78,67 +78,65 @@ const bool isVideoOnBackground = true;
 // Called by TB.initPublisher()
 - (void)initPublisher:(CDVInvokedUrlCommand *)command{
     NSLog(@"initPublisher...");
-   // [self.commandDelegate runInBackground:^{
-        BOOL bpubAudio = YES;
-        BOOL bpubVideo = YES;
-        
-        // Get Parameters
-        NSString* name = [command.arguments objectAtIndex:0];
-        int top = [[command.arguments objectAtIndex:1] intValue];
-        int left = [[command.arguments objectAtIndex:2] intValue];
-        int width = [[command.arguments objectAtIndex:3] intValue];
-        int height = [[command.arguments objectAtIndex:4] intValue];
-        int zIndex = [[command.arguments objectAtIndex:5] intValue];
-        int borderRadius = [[command.arguments objectAtIndex:8] intValue];
-        
-        NSString* publishAudio = [command.arguments objectAtIndex:6];
-        if ([publishAudio isEqualToString:@"false"]) {
-            bpubAudio = NO;
-        }
-        NSString* publishVideo = [command.arguments objectAtIndex:7];
-        if ([publishVideo isEqualToString:@"false"]) {
-            bpubVideo = NO;
-        }
-        
-        // Publish and set View
-        _publisher = [[OTPublisher alloc] initWithDelegate:self name:name];
-        [_publisher setPublishAudio:bpubAudio];
-        [_publisher setPublishVideo:bpubVideo];
-        
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^
-		{
-			if(isVideoOnBackground)
-			{
-				[self.webView.superview insertSubview:_publisher.view atIndex:0];
-				self.webView.layer.zPosition = 999;
-				
-				[_publisher.view setFrame:CGRectMake(left, top, width, height)];
-				_publisher.view.layer.zPosition = 1;
-			}
-			else
-			{
-				[self.webView.superview addSubview:_publisher.view];
-				if (zIndex>0) {
-                _publisher.view.layer.zPosition = zIndex;
-				}
-			}
-			
-
-            
-			NSString* cameraPosition = [command.arguments objectAtIndex:8];
-            if ([cameraPosition isEqualToString:@"back"]) {
-                _publisher.cameraPosition = AVCaptureDevicePositionBack;
-            }
-            _publisher.view.layer.cornerRadius = borderRadius;
-            _publisher.view.clipsToBounds = borderRadius ? YES : NO;
-            
-            NSLog(@"initPublisher done");
-            
-            // Return to Javascript
-            CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        }];
-   // }];
+    // [self.commandDelegate runInBackground:^{
+    BOOL bpubAudio = YES;
+    BOOL bpubVideo = YES;
+    
+    // Get Parameters
+    NSString* name = [command.arguments objectAtIndex:0];
+    int top = [[command.arguments objectAtIndex:1] intValue];
+    int left = [[command.arguments objectAtIndex:2] intValue];
+    int width = [[command.arguments objectAtIndex:3] intValue];
+    int height = [[command.arguments objectAtIndex:4] intValue];
+    int zIndex = [[command.arguments objectAtIndex:5] intValue];
+    int borderRadius = [[command.arguments objectAtIndex:8] intValue];
+    
+    NSString* publishAudio = [command.arguments objectAtIndex:6];
+    if ([publishAudio isEqualToString:@"false"]) {
+        bpubAudio = NO;
+    }
+    NSString* publishVideo = [command.arguments objectAtIndex:7];
+    if ([publishVideo isEqualToString:@"false"]) {
+        bpubVideo = NO;
+    }
+    
+    // Publish and set View
+    _publisher = [[OTPublisher alloc] initWithDelegate:self name:name];
+    [_publisher setPublishAudio:bpubAudio];
+    [_publisher setPublishVideo:bpubVideo];
+    
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^
+     {
+         if(isVideoOnBackground)
+         {
+             [self.webView.superview insertSubview:_publisher.view atIndex:0];
+             self.webView.layer.zPosition = 999;
+             
+             [_publisher.view setFrame:CGRectMake(left, top, width, height)];
+             _publisher.view.layer.zPosition = 1;
+         }
+         else
+         {
+             [self.webView.superview addSubview:_publisher.view];
+             if (zIndex>0) {
+                 _publisher.view.layer.zPosition = zIndex;
+             }
+         }
+         
+         NSString* cameraPosition = [command.arguments objectAtIndex:8];
+         if ([cameraPosition isEqualToString:@"back"]) {
+             _publisher.cameraPosition = AVCaptureDevicePositionBack;
+         }
+         _publisher.view.layer.cornerRadius = borderRadius;
+         _publisher.view.clipsToBounds = borderRadius ? YES : NO;
+         
+         NSLog(@"initPublisher done");
+         
+         // Return to Javascript
+         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+     }];
+    // }];
 }
 // Helper function to update Views
 - (void)updateView:(CDVInvokedUrlCommand*)command{
@@ -152,7 +150,7 @@ const bool isVideoOnBackground = true;
     int borderRadius = [[command.arguments objectAtIndex:8] intValue];
     
     //NSLog(@"updateView: %@, left: %d, top: %d, width: %d, height: %d, zIndex: %d", sid, left, top, width, height, zIndex);
-
+    
     if ([sid isEqualToString:@"TBPublisher"]) {
         _publisher.view.frame = CGRectMake(left, top, width, height);
         _publisher.view.layer.zPosition = zIndex;
@@ -171,7 +169,7 @@ const bool isVideoOnBackground = true;
             streamInfo.view.clipsToBounds = borderRadius ? YES : NO;
         }
     }
-
+    
     CDVPluginResult* callbackResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [callbackResult setKeepCallbackAsBool:YES];
     //[self.commandDelegate sendPluginResult:callbackResult toSuccessCallbackString:command.callbackId];
@@ -240,7 +238,7 @@ const bool isVideoOnBackground = true;
     NSLog(@"Session.connect");
     [self.commandDelegate runInBackground:^{
         OTError *error;
-
+        
         // Get Parameters
         NSString* tbToken = [command.arguments objectAtIndex:0];
         [_session connectWithToken:tbToken error:&error];
@@ -285,17 +283,17 @@ const bool isVideoOnBackground = true;
     NSLog(@"Session.publish...");
     [self.commandDelegate runInBackground:^{
         OTError *error;
-
-		[_session publish:_publisher error:&error];
-	
-		if (error) {
-			NSLog(@"Session.publish failed: %@", [error localizedDescription]);
-		}
-		else {
-			NSLog(@"Session.publish done");
-		}
-		
-
+        
+        [_session publish:_publisher error:&error];
+        
+        if (error) {
+            NSLog(@"Session.publish failed: %@", [error localizedDescription]);
+        }
+        else {
+            NSLog(@"Session.publish done");
+        }
+        
+        
         CDVPluginResult* pluginResult = error ?
         [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"%@ PUBLISH %@", [error localizedDescription], _publisher == nil ? @"PUBLISHER NIL" : @"PUBLISHER NOT NIL"]] :
         [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
@@ -353,24 +351,24 @@ const bool isVideoOnBackground = true;
     [subscriberDictionary setObject:sub forKey:myStream.streamId];
     
     [sub.view setFrame:CGRectMake(left, top, width, height)];
-
+    
     sub.view.layer.cornerRadius = borderRadius;
     sub.view.clipsToBounds = borderRadius ? YES : NO;
-	
-	if(isVideoOnBackground)
-	{
-		[self.webView.superview insertSubview:sub.view atIndex:0];
-		self.webView.layer.zPosition = 999;
-		sub.view.layer.zPosition = 1;	
-	}
-	else
-	{
-		if (zIndex>0) {
-			sub.view.layer.zPosition = zIndex;
-		}
-		[self.webView.superview addSubview:sub.view];
-	}
-	
+    
+    if(isVideoOnBackground)
+    {
+        [self.webView.superview insertSubview:sub.view atIndex:0];
+        self.webView.layer.zPosition = 999;
+        sub.view.layer.zPosition = 1;
+    }
+    else
+    {
+        if (zIndex>0) {
+            sub.view.layer.zPosition = zIndex;
+        }
+        [self.webView.superview addSubview:sub.view];
+    }
+    
     if (error) {
         NSLog(@"Session.subscribe failed: %@", [error localizedDescription]);
     }
@@ -398,7 +396,7 @@ const bool isVideoOnBackground = true;
     [self.commandDelegate runInBackground:^{
         OTError *error;
         [_session unsubscribe:subscriber error:&error];
-    
+        
         if (error) {
             NSLog(@"Session.unsubscribe failed: %@", [error localizedDescription]);
         }
@@ -651,66 +649,97 @@ const bool isVideoOnBackground = true;
 
 -(void)recognizeFace:(CDVInvokedUrlCommand*)command
 {
-	CDVPluginResult* pluginResult;
-	
-	if(_publisher != nil)
-	{
-		CIContext *context = [CIContext context];
-		
-		NSDictionary *opts = @{ CIDetectorAccuracy : CIDetectorAccuracyHigh };
-		
-		CIDetector *detector = [CIDetector detectorOfType:CIDetectorTypeFace
-												  context:context
-												  options:opts];
-						
-        UIImage * opentokframe = [self screenShotImageWithView: _publisher.view];
-
-        CIImage * finalimage = [[CIImage alloc] initWithCGImage: opentokframe.CGImage options:nil];
-                                                                //1 means landscape and not inverted
-        NSDictionary * optsfeatures = [NSDictionary dictionaryWithObject: [NSNumber numberWithInt:1] forKey: CIDetectorImageOrientation];
-            
-        NSArray * features = [detector featuresInImage:finalimage options:optsfeatures];
-
-        float finalwidth = CGImageGetWidth(opentokframe.CGImage);
-        float finalheight = CGImageGetHeight(opentokframe.CGImage);
+    NSString* sid = [command.arguments objectAtIndex:0];
+    bool isPublisher = [[command.arguments objectAtIndex:1] boolValue];
+    
+    UIView * targetView;
+    
+    if(isPublisher)
+        targetView = _publisher.view;
+    else
+    {
+        OTSubscriber * sub = [subscriberDictionary objectForKey: sid];
+        targetView = sub.view;
+    }
+    
+    if(targetView != nil )
+    {
+        CIContext *context = [CIContext context];
         
-        //NSLog(@"Final image width height %g %g", finalwidth, finalheight);
+        NSDictionary *opts = @{ CIDetectorAccuracy : CIDetectorAccuracyHigh };
         
-        if(features.count > 0)
-        {
-            CIFaceFeature * face = features[0];
+        CIDetector *detector = [CIDetector detectorOfType:CIDetectorTypeFace
+                                                  context:context
+                                                  options:opts];
+        
+        UIImage * opentokframe = [self screenShotImageWithView: targetView];
+        
+        [self.commandDelegate runInBackground:^{
             
-            if (face.hasLeftEyePosition && face.hasRightEyePosition)
+            CDVPluginResult* pluginResult;
+            
+            CIImage * finalimage = [[CIImage alloc] initWithCGImage: opentokframe.CGImage options:nil];
+            //1 means landscape and not inverted
+            NSDictionary * optsfeatures = [NSDictionary dictionaryWithObject: [NSNumber numberWithInt:1] forKey: CIDetectorImageOrientation];
+            
+            NSArray * features = [detector featuresInImage:finalimage options:optsfeatures];
+            
+            float finalwidth = CGImageGetWidth(opentokframe.CGImage);
+            float finalheight = CGImageGetHeight(opentokframe.CGImage);
+            
+            //NSLog(@"Final image width height %g %g", finalwidth, finalheight);
+            
+            if(features.count > 0)
             {
-                NSMutableDictionary * featuresdict = [[NSMutableDictionary alloc] initWithCapacity:4];
+                CIFaceFeature * face = features[0];
                 
-                [featuresdict setObject:[NSNumber numberWithFloat:((face.leftEyePosition.x/finalwidth)*100.0)] forKey:@"leftEyeX"];
-                [featuresdict setObject:[NSNumber numberWithFloat:((face.leftEyePosition.y/finalheight)*100.0)] forKey:@"leftEyeY"];
-                
-                [featuresdict setObject:[NSNumber numberWithFloat:((face.rightEyePosition.x/finalwidth)*100.0)] forKey:@"rightEyeX"];
-                [featuresdict setObject:[NSNumber numberWithFloat:((face.rightEyePosition.y/finalheight)*100.0)] forKey:@"rightEyeY"];
-                
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary: featuresdict];
-                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+                if (face.hasLeftEyePosition && face.hasRightEyePosition)
+                {
+                    NSMutableDictionary * featuresdict = [[NSMutableDictionary alloc] initWithCapacity:5];
+                    
+                    [featuresdict setObject:[NSNumber numberWithFloat:((face.leftEyePosition.x/finalwidth)*100.0)] forKey:@"leftEyeX"];
+                    [featuresdict setObject:[NSNumber numberWithFloat:(100.0-(face.leftEyePosition.y/finalheight)*100.0) - 2.5] forKey:@"leftEyeY"];
+                    
+                    [featuresdict setObject:[NSNumber numberWithFloat:((face.rightEyePosition.x/finalwidth)*100.0)] forKey:@"rightEyeX"];
+                    [featuresdict setObject:[NSNumber numberWithFloat:(100.0-(face.rightEyePosition.y/finalheight)*100.0) - 2.5] forKey:@"rightEyeY"];
+                    
+                    [featuresdict setObject: sid forKey:@"streamId"];
+                    
+                    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary: featuresdict];
+                    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+                }
+                else
+                {
+                    NSMutableDictionary * errorDict = [[NSMutableDictionary alloc] initWithCapacity:2];
+                    [errorDict setObject: sid forKey:@"streamId"];
+                    [errorDict setObject: [NSString stringWithFormat:@"DIDNT FIND EYES"] forKey:@"error"];
+                    
+                    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:errorDict];
+                    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+                }
             }
             else
             {
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"COULDNT FIND EYES"]];
+                NSMutableDictionary * errorDict = [[NSMutableDictionary alloc] initWithCapacity:2];
+                [errorDict setObject: sid forKey:@"streamId"];
+                [errorDict setObject: [NSString stringWithFormat:@"NO FACE DETECTED"] forKey:@"error"];
+                
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary: errorDict];
                 [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
             }
-        }
-        else
-        {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"NO FACE DETECTED"]];
-            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        }
-	}	
+            
+        }];
+    }
     else
     {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"PUBLISHER IS NULL, NO HEAD TRACKING"]];
+        
+        NSMutableDictionary * errorDict = [[NSMutableDictionary alloc] initWithCapacity:2];
+        [errorDict setObject: sid forKey:@"streamId"];
+        [errorDict setObject: [NSString stringWithFormat:@"UIVIEW FOR STREAMID NOT FOUND"] forKey:@"error"];
+        
+        CDVPluginResult * pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:errorDict];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }
-    
 }
 
 /***** Notes
@@ -730,3 +759,4 @@ const bool isVideoOnBackground = true;
 
 
 @end
+
