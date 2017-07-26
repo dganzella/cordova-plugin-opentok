@@ -34,6 +34,11 @@ import com.opentok.android.Stream.StreamVideoType;
 import com.opentok.android.Subscriber;
 import com.opentok.android.SubscriberKit;
 
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.face.Face;
+import com.google.android.gms.vision.face.FaceDetector;
+import com.google.android.gms.vision.face.Landmark;
+
 
 public class OpenTokAndroidPlugin extends CordovaPlugin implements 
   Session.SessionListener, Session.ConnectionListener, Session.SignalListener, 
@@ -419,7 +424,41 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
       Log.i( TAG, action );
       // TB Methods
-      if( action.equals("initPublisher")){
+	  
+	  if(action.equals("recognizeFace"))
+      {
+		  //fazer um renderer customizado
+		  //colocar o renderer customizado no publisher e subscriber
+		  
+		  String sid = args.getString(0);
+		  boolean isPublisher = !(args.getString(1).equals("0"));
+		  
+		  //setar o callback context no renderer customizado correto
+		  
+		  FaceDetector fdetector = new FaceDetector.Builder().build(getApplicationContext());
+
+		  ArrayList<Face> faces = fdetector.detect(opentokFrame);
+		  fdetector.release();
+		  
+		  FaceDetector.Face face = faces[0];
+		  
+
+		  if( face.confidence() >= .3)
+		  {
+			face.eyesDistance();
+			face.getMidPoint(PointF point);
+			pose(EULER_Z);
+			  
+			callbackContext.success();
+		  }
+		  else
+		  {
+			callbackContext.error();
+		  }
+
+         return true;
+      }
+      else  if( action.equals("initPublisher")){
         myPublisher = new RunnablePublisher( args );
       }else if( action.equals( "destroyPublisher" )){
       if( myPublisher != null ){
