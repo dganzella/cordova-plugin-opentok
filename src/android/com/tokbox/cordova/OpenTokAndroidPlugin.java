@@ -34,12 +34,6 @@ import com.opentok.android.Stream.StreamVideoType;
 import com.opentok.android.Subscriber;
 import com.opentok.android.SubscriberKit;
 
-import com.google.android.gms.vision.Frame;
-import com.google.android.gms.vision.face.Face;
-import com.google.android.gms.vision.face.FaceDetector;
-import com.google.android.gms.vision.face.Landmark;
-
-
 public class OpenTokAndroidPlugin extends CordovaPlugin implements 
   Session.SessionListener, Session.ConnectionListener, Session.SignalListener, 
   PublisherKit.PublisherListener, Session.StreamPropertiesListener{

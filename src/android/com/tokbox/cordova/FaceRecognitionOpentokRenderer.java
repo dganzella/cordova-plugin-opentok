@@ -1,5 +1,10 @@
 package com.tokbox.cordova;
 
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.face.Face;
+import com.google.android.gms.vision.face.FaceDetector;
+import com.google.android.gms.vision.face.Landmark;
+
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
@@ -34,7 +39,7 @@ public class FaceRecognitionOpentokRenderer extends BaseVideoRenderer
     }
 	
 	@Override
-    public void onFrame(Frame frame)
+    public void onFrame(BaseVideoRenderer.Frame frame)
 	{
         if(mShouldRecognizeFaceOnNextFrame)
 		{
