@@ -27,9 +27,10 @@
         <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
         <uses-feature android:name="android.hardware.camera" android:required="true" />
         <uses-feature android:name="android.hardware.camera.autofocus" android:required="true" />
-		<application>
-			<meta-data android:name="com.google.android.gms.vision.DEPENDENCIES" android:value="face"/>
-		</application>
+	  </config-file>
+	  
+	  <config-file target="AndroidManifest.xml" parent="/manifest/application">
+		<meta-data android:name="com.google.android.gms.vision.DEPENDENCIES" android:value="face"/>
 	  </config-file>
 
       <!-- copy opentok sdk -->
