@@ -1,5 +1,13 @@
 package com.tokbox.cordova;
 
+import java.lang.Math;
+import android.graphics.PointF;
+
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.face.Face;
+import com.google.android.gms.vision.face.FaceDetector;
+import com.google.android.gms.vision.face.Landmark;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -185,7 +193,6 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
         }
 
         mPublisher = new Publisher(cordova.getActivity().getApplicationContext(), publisherName);
-		mPublisher.setRenderer(new FaceRecognitionOpentokRenderer(this));
         mPublisher.setCameraListener(this);
         mPublisher.setPublisherListener(this);
         try{
@@ -282,7 +289,6 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
       if( mSubscriber == null ){
         logMessage("NEW SUBSCRIBER BEING CREATED");
         mSubscriber = new Subscriber(cordova.getActivity(), mStream);
-		mSubscriber.setRenderer(new FaceRecognitionOpentokRenderer(this));
         mSubscriber.setVideoListener(this);
         mSubscriber.setSubscriberListener(this);
         ViewGroup frame = (ViewGroup) cordova.getActivity().findViewById(android.R.id.content);
@@ -416,6 +422,64 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
       }
     }
 
+  public Bitmap loadBitmapFromView(View v)
+  {
+    Bitmap b = Bitmap.createBitmap(v.getWidth() , v.getHeight(), Bitmap.Config.ARGB_8888);                
+    Canvas c = new Canvas(b);
+    v.layout(0, 0, v.getLayoutParams().width, v.getLayoutParams().height);
+    v.draw(c);
+    return b;
+ }
+
+  public void RecognizeFace(View v, CallbackContext callbackContext, String sid )
+  {
+		  FaceDetector fdetector = new FaceDetector.Builder(cordova.getActivity().getApplicationContext())
+		  					.setLandmarkType(FaceDetector.ALL_LANDMARKS)
+		  					.build();
+
+      Frame frame = new Frame.Builder().setBitmap(loadBitmapFromView(v)).build();
+
+		  ArrayList<Face> faces = fdetector.detect(frame);
+		  fdetector.release();
+		
+		  if( faces.size() > 0 )
+		  {
+        Face face = faces.get(0);
+
+        PointF left_eye = face.getLandmarks().get(Landmark.LEFT_EYE).getPosition();
+        PointF right_eye = face.getLandmarks().get(Landmark.RIGHT_EYE).getPosition();
+
+        PointF diff = new PointF(left_eye.x - right_eye.x, left_eye.y - right_eye.y);
+        
+        double rotation = -Math.atan2(diff.y, Math.abs(diff.x)) * 180.0 / Math.PI;
+
+        double distance = Math.sqrt( diff.x*diff.x + diff.y*diff.y )/((double)frame.getWidth()) * 100.0;
+        
+        PointF midPoint = new PointF ( 
+                        (float) ( ((left_eye.x + right_eye.x)/2.0)/(frame.getWidth())  * 100.0 ),
+                        (float) ( ((left_eye.y + right_eye.y)/2.0)/(frame.getHeight()) * 100.0 )
+                      );
+        
+        JSONObject resultdict = new JSONObject();
+        
+        resultdict.put("eyesDistance", distance);
+        resultdict.put("midPointX", midPoint.x);
+        resultdict.put("midPointY", midPoint.y);
+        resultdict.put("rotation", rotation);
+        resultdict.put("streamId", mStreamId);
+
+        mCallbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, resultdict));
+        }
+        else
+        {
+        JSONObject resultdict = new JSONObject();
+        
+        resultdict.put("streamId", mStreamId);
+        resultdict.put("error", "NO FACE DETECTED");
+        mCallbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, resultdict));
+		  }
+  }
+
   @Override
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
       Log.i( TAG, action );
@@ -430,14 +494,13 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
 		  {
 			  if(myPublisher != null)
 			  {
-				  Context appContext = cordova.getActivity().getApplicationContext(); 
-				  myPublisher.mPublisher.getRenderer().setToRecognizeFace(callbackContext, sid, appContext);
+				  RecognizeFace(myPublisher.mPublisher.getView(), callbackContext, sid);
 			  }
 			  else
 			  {
 				 JSONObject resultdict = new JSONObject();
 			
-				 resultdict.put("streamId", mStreamId);
+				 resultdict.put("streamId", sid);
 				 resultdict.put("error", "PUBLISHER IS NOT VALID");
 				
 				 callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, resultdict));		  
@@ -449,14 +512,13 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
 			
 			if(rs != null)
 			{
-				Context appContext = cordova.getActivity().getApplicationContext(); 
-				rs.mSubscriber.getRenderer().setToRecognizeFace(callbackContext, sid, appContext);
+        RecognizeFace(rs.mSubscriber.getView(), callbackContext, sid);
 			}
 			else
 			{
 				JSONObject resultdict = new JSONObject();
 			
-				resultdict.put("streamId", mStreamId);
+				resultdict.put("streamId", sid);
 				resultdict.put("error", "SUBSCRIBER FOR STREAMID NOT FOUND");
 				
 				callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, resultdict));
@@ -807,4 +869,3 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
     
   }
 }
-
