@@ -191,6 +191,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
         }
 
         mPublisher = new Publisher(cordova.getActivity().getApplicationContext(), publisherName);
+		mPublisher.setRenderer(new FaceRecognitionOpentokRenderer(this));
         mPublisher.setCameraListener(this);
         mPublisher.setPublisherListener(this);
         try{
@@ -287,6 +288,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
       if( mSubscriber == null ){
         logMessage("NEW SUBSCRIBER BEING CREATED");
         mSubscriber = new Subscriber(cordova.getActivity(), mStream);
+		mSubscriber.setRenderer(new FaceRecognitionOpentokRenderer(this));
         mSubscriber.setVideoListener(this);
         mSubscriber.setSubscriberListener(this);
         ViewGroup frame = (ViewGroup) cordova.getActivity().findViewById(android.R.id.content);
@@ -427,33 +429,42 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
 	  
 	  if(action.equals("recognizeFace"))
       {
-		  //fazer um renderer customizado
-		  //colocar o renderer customizado no publisher e subscriber
-		  
 		  String sid = args.getString(0);
 		  boolean isPublisher = !(args.getString(1).equals("0"));
 		  
-		  //setar o callback context no renderer customizado correto
-		  
-		  FaceDetector fdetector = new FaceDetector.Builder().build(getApplicationContext());
-
-		  ArrayList<Face> faces = fdetector.detect(opentokFrame);
-		  fdetector.release();
-		  
-		  FaceDetector.Face face = faces[0];
-		  
-
-		  if( face.confidence() >= .3)
+		  if(isPublisher)
 		  {
-			face.eyesDistance();
-			face.getMidPoint(PointF point);
-			pose(EULER_Z);
-			  
-			callbackContext.success();
+			  if(myPublisher != null)
+			  {
+				  myPublisher.mPublisher.getRenderer().setToRecognizeFace(callbackContext);
+			  }
+			  else
+			  {
+				 JSONObject resultdict = new JSONObject();
+			
+				 resultdict.put("streamId", mStreamId);
+				 resultdict.put("error", "PUBLISHER IS NOT VALID");
+				
+				 callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, resultdict));		  
+			  }
 		  }
 		  else
-		  {
-			callbackContext.error();
+		  {		
+			RunnableSubscriber rs = subscriberCollection.get(sid);
+			
+			if(rs != null)
+			{
+				rs.mSubscriber.getRenderer().setToRecognizeFace(callbackContext);
+			}
+			else
+			{
+				JSONObject resultdict = new JSONObject();
+			
+				resultdict.put("streamId", mStreamId);
+				resultdict.put("error", "SUBSCRIBER FOR STREAMID NOT FOUND");
+				
+				callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, resultdict));
+			}
 		  }
 
          return true;
