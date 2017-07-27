@@ -1,6 +1,8 @@
 package com.tokbox.cordova;
 
-import java.lang.Math;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.util.SparseArray;
 import android.graphics.PointF;
 
 import com.google.android.gms.vision.Frame;
@@ -13,6 +15,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+
+import java.lang.Math;
 
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
@@ -431,7 +435,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
     return b;
  }
 
-  public void RecognizeFace(View v, CallbackContext callbackContext, String sid )
+  public void RecognizeFace(View v, CallbackContext callbackContext, String sid ) throws JSONException
   {
 		  FaceDetector fdetector = new FaceDetector.Builder(cordova.getActivity().getApplicationContext())
 		  					.setLandmarkType(FaceDetector.ALL_LANDMARKS)
@@ -439,7 +443,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
 
       Frame frame = new Frame.Builder().setBitmap(loadBitmapFromView(v)).build();
 
-		  ArrayList<Face> faces = fdetector.detect(frame);
+		  SparseArray<Face> faces = fdetector.detect(frame);
 		  fdetector.release();
 		
 		  if( faces.size() > 0 )
@@ -453,11 +457,11 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
         
         double rotation = -Math.atan2(diff.y, Math.abs(diff.x)) * 180.0 / Math.PI;
 
-        double distance = Math.sqrt( diff.x*diff.x + diff.y*diff.y )/((double)frame.getWidth()) * 100.0;
+        double distance = Math.sqrt( diff.x*diff.x + diff.y*diff.y )/((double)v.getWidth()) * 100.0;
         
         PointF midPoint = new PointF ( 
-                        (float) ( ((left_eye.x + right_eye.x)/2.0)/(frame.getWidth())  * 100.0 ),
-                        (float) ( ((left_eye.y + right_eye.y)/2.0)/(frame.getHeight()) * 100.0 )
+                        (float) ( ((left_eye.x + right_eye.x)/2.0)/(v.getWidth())  * 100.0 ),
+                        (float) ( ((left_eye.y + right_eye.y)/2.0)/(v.getHeight()) * 100.0 )
                       );
         
         JSONObject resultdict = new JSONObject();
@@ -466,17 +470,17 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
         resultdict.put("midPointX", midPoint.x);
         resultdict.put("midPointY", midPoint.y);
         resultdict.put("rotation", rotation);
-        resultdict.put("streamId", mStreamId);
+        resultdict.put("streamId", sid);
 
-        mCallbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, resultdict));
-        }
-        else
-        {
+        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, resultdict));
+      }
+      else
+      {
         JSONObject resultdict = new JSONObject();
         
-        resultdict.put("streamId", mStreamId);
+        resultdict.put("streamId", sid);
         resultdict.put("error", "NO FACE DETECTED");
-        mCallbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, resultdict));
+        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, resultdict));
 		  }
   }
 
