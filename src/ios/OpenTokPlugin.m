@@ -687,34 +687,33 @@ const bool isVideoOnBackground = true;
             float finalwidth = CGImageGetWidth(opentokframe.CGImage);
             float finalheight = CGImageGetHeight(opentokframe.CGImage);
             
-            //NSLog(@"Final image width height %g %g", finalwidth, finalheight);
-            
             if(features.count > 0)
             {
                 CIFaceFeature * face = features[0];
                 
                 if (face.hasLeftEyePosition && face.hasRightEyePosition)
                 {
-					float invertedLeftY = finalheight -  face.leftEyePosition.y;
-					float invertedRightY = finalheight -  face.rightEyePosition.y;
-	
-					float diffx =  face.leftEyePosition.x - face.rightEyePosition.x;
-					float diffy = invertedLeftY - invertedRightY;
-
-					float rotation = -atan2(diffy, fabsf(diffx)) * 180.0 / 3.1415926;
-
-					float distance = sqrt( diffx*diffx + diffy*diffy )/finalwidth * 100.0;
-
-					float midPointX = ((face.leftEyePosition.x + face.rightEyePosition.x)/2.0)/finalwidth * 100.0;
-					float midPointY = ((invertedLeftY + invertedRightY)/2.0)/finalheight * 100.0;
-
+                    //move the eyes up by 2.5%, its the error between the web and the native ios face detector
+                    float invertedLeftY = finalheight*0.975 -  face.leftEyePosition.y;
+                    float invertedRightY = finalheight*0.975 -  face.rightEyePosition.y;
+                    
+                    float diffx =  face.leftEyePosition.x - face.rightEyePosition.x;
+                    float diffy = invertedLeftY - invertedRightY;
+                    
+                    float rotation = -atan2(diffy, fabsf(diffx)) * 180.0 / 3.1415926;
+                    
+                    float distance = sqrt( diffx*diffx + diffy*diffy )/finalwidth * 100.0;
+                    
+                    float midPointX = ((face.leftEyePosition.x + face.rightEyePosition.x)/2.0)/finalwidth * 100.0;
+                    float midPointY = ((invertedLeftY + invertedRightY)/2.0)/finalheight * 100.0;
+                    
                     NSMutableDictionary * featuresdict = [[NSMutableDictionary alloc] initWithCapacity:5];
-					
-					[featuresdict setObject: [NSNumber numberWithFloat:distance] forKey:@"eyesDistance"];
-					[featuresdict setObject: [NSNumber numberWithFloat:midPointX] forKey:@"midPointX"];
-					[featuresdict setObject: [NSNumber numberWithFloat:midPointY] forKey:@"midPointY"];
+                    
+                    [featuresdict setObject: [NSNumber numberWithFloat:distance] forKey:@"eyesDistance"];
+                    [featuresdict setObject: [NSNumber numberWithFloat:midPointX] forKey:@"midPointX"];
+                    [featuresdict setObject: [NSNumber numberWithFloat:midPointY] forKey:@"midPointY"];
                     [featuresdict setObject: [NSNumber numberWithFloat:rotation] forKey:@"rotation"];
-					[featuresdict setObject: sid forKey:@"streamId"];
+                    [featuresdict setObject: sid forKey:@"streamId"];
                     
                     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary: featuresdict];
                     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -770,4 +769,3 @@ const bool isVideoOnBackground = true;
 
 
 @end
-
