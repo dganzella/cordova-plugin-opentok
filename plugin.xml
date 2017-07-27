@@ -11,7 +11,7 @@
 
     <platform name="android">
       <framework src="build-extras.gradle" custom="true" type="gradleReference" />
-	  <framework src="com.google.android.gms:play-services-vision:10.2.6" />
+	  <framework src="com.google.android.gms:play-services-vision:11.0.4" />
       <asset src="www/opentok.js" target="opentok.js" />
 
       <source-file src="src/android/com/tokbox/cordova/OpenTokAndroidPlugin.java"
