@@ -52,9 +52,9 @@ public class FaceRecognitionOpentokRenderer extends BaseVideoRenderer
 			PointF midpoint = new PointF();
 			face.getMidPoint(midpoint);
 			
-			resultdict.put("eyesDistance", face.eyesDistance());
-			resultdict.put("midPointX", midpoint.x);
-			resultdict.put("midPointY", midpoint.y);
+			resultdict.put("eyesDistance", face.eyesDistance()/frame.width());
+			resultdict.put("midPointX", midpoint.x/frame.width());
+			resultdict.put("midPointY", midpoint.y/frame.height());
 			resultdict.put("rotation", face.pose(EULER_Z));
 
 			mCallbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, resultdict));
