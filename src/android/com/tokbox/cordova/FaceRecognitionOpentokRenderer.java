@@ -1,5 +1,9 @@
 package com.tokbox.cordova;
 
+import android.content.Context;
+
+import android.graphics.PointF
+
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
@@ -31,11 +35,13 @@ public class FaceRecognitionOpentokRenderer extends BaseVideoRenderer
 	private Boolean mShouldRecognizeFaceOnNextFrame = false;
 	private CallbackContext mCallbackContext;
 	private String mStreamId;
+	private Context mAppContext;
 	
-	 public void setToRecognizeFace(CallbackContext callbackContext, String streamId){
+	 public void setToRecognizeFace(CallbackContext callbackContext, String streamId, Context appContext){
         mShouldRecognizeFaceOnNextFrame = true;
 		mCallbackContext = callbackContext;
 		mStreamId = streamId;
+		mAppContext = appContext;
     }
 	
 	@Override
@@ -43,7 +49,7 @@ public class FaceRecognitionOpentokRenderer extends BaseVideoRenderer
 	{
         if(mShouldRecognizeFaceOnNextFrame)
 		{
-		  FaceDetector fdetector = new FaceDetector.Builder().build(getApplicationContext());
+		  FaceDetector fdetector = new FaceDetector.Builder().build(mAppContext);
 
 		  ArrayList<Face> faces = fdetector.detect(opentokFrame);
 		  fdetector.release();

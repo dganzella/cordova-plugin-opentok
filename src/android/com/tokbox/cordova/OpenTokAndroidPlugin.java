@@ -430,7 +430,8 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
 		  {
 			  if(myPublisher != null)
 			  {
-				  myPublisher.mPublisher.getRenderer().setToRecognizeFace(callbackContext);
+				  Context appContext = cordova.getActivity().getApplicationContext(); 
+				  myPublisher.mPublisher.getRenderer().setToRecognizeFace(callbackContext, sid, appContext);
 			  }
 			  else
 			  {
@@ -448,7 +449,8 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
 			
 			if(rs != null)
 			{
-				rs.mSubscriber.getRenderer().setToRecognizeFace(callbackContext);
+				Context appContext = cordova.getActivity().getApplicationContext(); 
+				rs.mSubscriber.getRenderer().setToRecognizeFace(callbackContext, sid, appContext);
 			}
 			else
 			{
