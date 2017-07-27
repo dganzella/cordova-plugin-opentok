@@ -695,15 +695,26 @@ const bool isVideoOnBackground = true;
                 
                 if (face.hasLeftEyePosition && face.hasRightEyePosition)
                 {
+					float invertedLeftY = finalheight -  face.leftEyePosition.y;
+					float invertedRightY = finalheight -  face.rightEyePosition.y;
+	
+					float diffx =  face.leftEyePosition.x - face.rightEyePosition.x;
+					float diffy = invertedLeftY - invertedRightY;
+
+					float rotation = -atan2(diffy, fabsf(diffx)) * 180.0 / 3.1415926;
+
+					float distance = sqrt( diffx*diffx + diffy*diffy )/finalwidth * 100.0;
+
+					float midPointX = ((face.leftEyePosition.x + face.rightEyePosition.x)/2.0)/finalwidth * 100.0;
+					float midPointY = ((invertedLeftY + invertedRightY)/2.0)/finalheight * 100.0;
+
                     NSMutableDictionary * featuresdict = [[NSMutableDictionary alloc] initWithCapacity:5];
-                    
-                    [featuresdict setObject:[NSNumber numberWithFloat:((face.leftEyePosition.x/finalwidth)*100.0)] forKey:@"leftEyeX"];
-                    [featuresdict setObject:[NSNumber numberWithFloat:(100.0-(face.leftEyePosition.y/finalheight)*100.0) - 2.5] forKey:@"leftEyeY"];
-                    
-                    [featuresdict setObject:[NSNumber numberWithFloat:((face.rightEyePosition.x/finalwidth)*100.0)] forKey:@"rightEyeX"];
-                    [featuresdict setObject:[NSNumber numberWithFloat:(100.0-(face.rightEyePosition.y/finalheight)*100.0) - 2.5] forKey:@"rightEyeY"];
-                    
-                    [featuresdict setObject: sid forKey:@"streamId"];
+					
+					[featuresdict setObject: [NSNumber numberWithFloat:distance] forKey:@"eyesDistance"];
+					[featuresdict setObject: [NSNumber numberWithFloat:midPointX] forKey:@"midPointX"];
+					[featuresdict setObject: [NSNumber numberWithFloat:midPointY] forKey:@"midPointY"];
+                    [featuresdict setObject: [NSNumber numberWithFloat:rotation] forKey:@"rotation"];
+					[featuresdict setObject: sid forKey:@"streamId"];
                     
                     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary: featuresdict];
                     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
