@@ -6,11 +6,6 @@ import android.util.SparseArray;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 
-import com.google.android.gms.vision.Frame;
-import com.google.android.gms.vision.face.Face;
-import com.google.android.gms.vision.face.FaceDetector;
-import com.google.android.gms.vision.face.Landmark;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -199,6 +194,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
         }
 
         mPublisher = new Publisher(cordova.getActivity().getApplicationContext(), publisherName);
+        mPublisher.setRenderer(new FaceRecognitionOpentokRenderer(cordova.getActivity().getApplicationContext()));
         mPublisher.setCameraListener(this);
         mPublisher.setPublisherListener(this);
         try{
@@ -295,6 +291,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
       if( mSubscriber == null ){
         logMessage("NEW SUBSCRIBER BEING CREATED");
         mSubscriber = new Subscriber(cordova.getActivity(), mStream);
+        mSubscriber.setRenderer(new FaceRecognitionOpentokRenderer(cordova.getActivity().getApplicationContext()));
         mSubscriber.setVideoListener(this);
         mSubscriber.setSubscriberListener(this);
         ViewGroup frame = (ViewGroup) cordova.getActivity().findViewById(android.R.id.content);
@@ -432,50 +429,47 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
       Log.i( TAG, action );
       // TB Methods
-	  
-	  if(action.equals("recognizeFace"))
+      if(action.equals("recognizeFace"))
       {
-		  String sid = mArgs.getString(0);
-		  boolean isPublisher = !(mArgs.getString(1).equals("0"));
-		  
-		  if(isPublisher)
-		  {
-			if(myPublisher != null)
-			{
-			  RecognizeFace(myPublisher.mPublisher.getView(), mCallbackContext, sid);
-			}
-			else
-			{
-			JSONObject resultdict = new JSONObject();
-		  
-			resultdict.put("streamId", sid);
-			resultdict.put("error", "PUBLISHER IS NOT VALID");
-			
-			mCallbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, resultdict));		  
-			}
-		  }
-		  else
-		  {		
-			RunnableSubscriber rs = subscriberCollection.get(sid);
-			
-			if(rs != null)
-			{
-			  RecognizeFace(rs.mSubscriber.getView(), mCallbackContext, sid);
-			}
-			else
-			{
-			  JSONObject resultdict = new JSONObject();
-			
-			  resultdict.put("streamId", sid);
-			  resultdict.put("error", "SUBSCRIBER FOR STREAMID NOT FOUND");
-			  
-			  mCallbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, resultdict));
-			}
-		  }
-		}
+        String sid = args.getString(0);
+        boolean isPublisher = args.getString(1).equals("true");
+        
+        if(isPublisher)
+        {
+          if(myPublisher != null)
+          {
+            ((FaceRecognitionOpentokRenderer)myPublisher.mPublisher.getRenderer()).
+            setToRecognizeFace(callbackContext, sid, true);
+          }
+          else
+          {
+            JSONObject resultdict = new JSONObject();
+            
+            resultdict.put("streamId", sid);
+            resultdict.put("error", "PUBLISHER IS NOT VALID");
+            
+            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, resultdict));		  
+          }
         }
+        else
+        {
+          if(subscriberCollection.containsKey(sid))
+          {
+            RunnableSubscriber rs = subscriberCollection.get(sid);
 
-        cordova.getActivity().runOnUiThread(new FaceRecogRunnable(args, callbackContext));
+            ((FaceRecognitionOpentokRenderer)rs.mSubscriber.getRenderer()).
+            setToRecognizeFace(callbackContext, sid, false);
+          }
+          else
+          {
+            JSONObject resultdict = new JSONObject();
+          
+            resultdict.put("streamId", sid);
+            resultdict.put("error", "SUBSCRIBER FOR STREAMID NOT FOUND");
+            
+            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, resultdict));
+          }
+        }
 
         return true;
       }
