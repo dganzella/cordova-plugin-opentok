@@ -5,9 +5,13 @@ module.exports = function(context) {
         Q = context.requireCordovaModule('q'),
         deferral = new Q.defer();
 
-    console.log('tar -zxvf ' + context.opts.plugin.dir + '/src/ios/' + IosSDKFile);
+    var sdkdir = context.opts.plugin.dir + '/src/ios/';
 
-    exec('tar -zxvf ' + context.opts.plugin.dir + '/src/ios/' + IosSDKFile, function(err, out, code) {
+    var sdkfile = sdkdir + IosSDKFile
+
+    console.log(sdkfile);
+
+    exec('tar -zxvf ' + sdkfile + ' -C ' + sdkdir, function(err, out, code) {
         console.log('expanded');
         console.log(err);
         console.log(out);
