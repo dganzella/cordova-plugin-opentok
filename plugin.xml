@@ -51,7 +51,6 @@
 
     <!-- ios -->
     <platform name="ios">
-      <hook type="before_prepare" src="scripts/uncompactSDK.js" />
       <asset src="www/opentok.js" target="opentok.js" />
 
       <header-file src="src/ios/OpenTokPlugin.h" />
