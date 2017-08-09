@@ -587,7 +587,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
   @Override
   public void onConnected(Session arg0) {
 
-    Log.i(TAG, "XXX CONNECT"); 
+    Log.i(TAG, "CONNECT"); 
 
     Log.i(TAG, "session connected, triggering sessionConnected Event. My Cid is: "+ 
     mSession.getConnection().getConnectionId()    );      
@@ -607,7 +607,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
   @Override
   public void onDisconnected(Session arg0) {
 
-    Log.i(TAG, "XXX DISCONNECT"); 
+    Log.i(TAG, "DISCONNECT"); 
 
     sessionConnected = false;
     
@@ -643,7 +643,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
   @Override
   public void onReconnecting(Session arg0) {
 
-    Log.i( TAG, "XXX RECONNECTING");
+    Log.i( TAG, "on Reconnecting");
 
     JSONObject data = new JSONObject();   
     try{
@@ -656,7 +656,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
   @Override
   public void onReconnected(Session arg0) {
 
-    Log.i( TAG, "XXX RECONNECTED");
+    Log.i( TAG, "on Reconnected");
 
     JSONObject data = new JSONObject();   
     try{
@@ -668,7 +668,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
 
   @Override
   public void onStreamDropped(Session arg0, Stream arg1) {
-    Log.i(TAG, "XXX session dropped stream");
+    Log.i(TAG, "session dropped stream");
     streamCollection.remove( arg1.getStreamId() );
     RunnableSubscriber subscriber = subscriberCollection.get( arg1.getStreamId() );
     if(subscriber != null){
@@ -681,7 +681,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
 
   @Override
   public void onStreamReceived(Session arg0, Stream arg1) {
-    Log.i(TAG, "XXX stream received");
+    Log.i(TAG, "stream received");
     streamCollection.put(arg1.getStreamId(), arg1);
     triggerStreamCreated( arg1, "sessionEvents");
   }
@@ -689,13 +689,13 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
   @Override
   public void onError(Session arg0, OpentokError arg1) {
     // TODO Auto-generated method stub
-    Log.e(TAG, "XXX session exception: " + arg1.getMessage());
+    Log.e(TAG, "session exception: " + arg1.getMessage());
     alertUser("session error "+arg1.getMessage());
   }
   
   // connectionListener
   public void onConnectionCreated(Session arg0, Connection arg1) {
-    Log.i(TAG, "XXX connectionCreated");   
+    Log.i(TAG, "connectionCreated");   
 
     connectionCollection.put(arg1.getConnectionId(), arg1);
 
@@ -709,7 +709,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
 
   public void onConnectionDestroyed(Session arg0, Connection arg1) {
 
-    Log.i(TAG, "XXX connection dropped: " + arg1.getConnectionId());
+    Log.i(TAG, "connection dropped: " + arg1.getConnectionId());
 
   connectionCollection.remove( arg1.getConnectionId() );
     JSONObject data= new JSONObject();
@@ -723,7 +723,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
   // signalListener
   public void onSignalReceived(Session arg0, String arg1, String arg2, Connection arg3) {
 
-    Log.i(TAG, "XXX onSignalReceived"); 
+    Log.i(TAG, "onSignalReceived"); 
 
     JSONObject data= new JSONObject();
     Log.i(TAG, "signal type: " + arg1);
