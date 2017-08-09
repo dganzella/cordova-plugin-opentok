@@ -492,6 +492,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
         Log.i( TAG, "created new session with data: "+args.toString());
         mSession = new Session(this.cordova.getActivity().getApplicationContext(), args.getString(0), args.getString(1));
         mSession.setSessionListener(this);
+		mSession.setReconnectionListener(this);
         mSession.setConnectionListener(this);
         mSession.setSignalListener(this);
         mSession.setStreamPropertiesListener(this);
