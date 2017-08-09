@@ -45,7 +45,7 @@ import com.opentok.android.SubscriberKit;
 
 public class OpenTokAndroidPlugin extends CordovaPlugin implements 
   Session.SessionListener, Session.ConnectionListener, Session.SignalListener, 
-  PublisherKit.PublisherListener, Session.StreamPropertiesListener{
+  PublisherKit.PublisherListener, Session.StreamPropertiesListener, Session.ReconnectionListener{
   
   private String sessionId;
   protected Session mSession;
@@ -631,6 +631,28 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
     }catch (JSONException e) {}
 
     triggerJSEvent( "sessionEvents", "sessionDisconnected", data);
+  }
+  
+  @Override
+  public void onReconnecting(Session arg0) {
+
+    JSONObject data = new JSONObject();   
+    try{
+      data.put("reason", "clientReconnecting");
+    }catch (JSONException e) {}
+
+    triggerJSEvent( "sessionEvents", "sessionReconnecting", data);
+  }
+  
+  @Override
+  public void onReconnected(Session arg0) {
+
+    JSONObject data = new JSONObject();   
+    try{
+      data.put("reason", "clientReconnected");
+    }catch (JSONException e) {}
+
+    triggerJSEvent( "sessionEvents", "sessionReconnected", data);
   }
 
   @Override

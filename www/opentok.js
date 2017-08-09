@@ -207,6 +207,11 @@ replaceWithVideoStream = function (divName, streamId, properties) {
     internalDiv.style.height = '100%';
     internalDiv.style.left = '0px';
     internalDiv.style.top = '0px';
+
+    videoElement = document.createElement("video");
+    videoElement.style.visibility = "hidden";
+    internalDiv.appendChild(videoElement);
+
     element.appendChild(internalDiv);
     return element;
 };
@@ -671,6 +676,8 @@ TBSession = (function () {
         this.streamDestroyed = __bind(this.streamDestroyed, this);
         this.streamCreated = __bind(this.streamCreated, this);
         this.sessionDisconnected = __bind(this.sessionDisconnected, this);
+        this.sessionReconnecting = __bind(this.sessionReconnecting, this);
+        this.sessionReconnected = __bind(this.sessionReconnected, this);
         this.sessionConnected = __bind(this.sessionConnected, this);
         this.connectionDestroyed = __bind(this.connectionDestroyed, this);
         this.connectionCreated = __bind(this.connectionCreated, this);
@@ -752,6 +759,32 @@ TBSession = (function () {
         });
         this.trigger('sessionDisconnected', sessionDisconnectedEvent);
         this.cleanUpDom();
+        return this;
+    };
+
+    TBSession.prototype.sessionReconnecting = function (event) {
+        var sessionReconnectingEvent;
+        pdebug('sessionReconnecting event', event);
+
+        sessionReconnectingEvent = new TBEvent({
+            reason: event.reason
+        });
+
+        this.trigger('sessionReconnecting', sessionReconnectingEvent);
+        
+        return this;
+    };
+
+    TBSession.prototype.sessionReconnected = function (event) {
+        var sessionReconnectedEvent;
+        pdebug('sessionReconnected event', event);
+
+        sessionReconnectedEvent = new TBEvent({
+            reason: event.reason
+        });
+
+        this.trigger('sessionReconnected', sessionReconnectedvent);
+        
         return this;
     };
 

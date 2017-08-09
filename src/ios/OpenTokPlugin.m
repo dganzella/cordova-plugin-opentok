@@ -555,6 +555,27 @@ const bool isVideoOnBackground = true;
     [eventData setObject:@"clientDisconnected" forKey:@"reason"];
     [self triggerJSEvent: @"sessionEvents" withType: @"sessionDisconnected" withData: eventData];
 }
+
+-(void)sessionDidBeginReconnecting:(nonnull OTSession *)session
+{
+    NSString* alertMessage = [NSString stringWithFormat:@"Session reconnecting: (%@)", session.sessionId];
+    NSLog(@"sessionDidBeginReconnecting (%@)", alertMessage);
+    
+    NSMutableDictionary* eventData = [[NSMutableDictionary alloc] init];
+    [eventData setObject:@"clientReconnecting" forKey:@"reason"];
+    [self triggerJSEvent: @"sessionEvents" withType: @"clientReconnecting" withData: eventData];
+}
+
+-(void)sessionDidReconnect:(nonnull OTSession *)session
+{
+    NSString* alertMessage = [NSString stringWithFormat:@"Session reconnected: (%@)", session.sessionId];
+    NSLog(@"sessionDidBeginReconnected (%@)", alertMessage);
+    
+    NSMutableDictionary* eventData = [[NSMutableDictionary alloc] init];
+    [eventData setObject:@"clientReconnectd" forKey:@"reason"];
+    [self triggerJSEvent: @"sessionEvents" withType: @"clientReconnectd" withData: eventData];
+}
+
 -(void) session:(OTSession *)session receivedSignalType:(NSString *)type fromConnection:(OTConnection *)connection withString:(NSString *)string{
     
     NSLog(@"iOS Session Received signal from Connection: %@ with id %@", connection, [connection connectionId]);
