@@ -287,7 +287,9 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
     public void removeStreamView(){
       ViewGroup frame = (ViewGroup) cordova.getActivity().findViewById(android.R.id.content);
       frame.removeView( this.mView );
-      mSubscriber.destroy();
+
+      if(mSubscriber != null)
+        mSubscriber.destroy();
     }
 
     public void run() {
@@ -483,7 +485,10 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
          cordova.getActivity().runOnUiThread(new Runnable() {
               @Override
               public void run() {
-                myPublisher.destroyPublisher();
+
+                if(myPublisher != null)
+                  myPublisher.destroyPublisher();
+                
                 myPublisher = null;
              }
          });
