@@ -178,7 +178,10 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
     public void destroyPublisher(){
       ViewGroup parent = (ViewGroup) cordova.getActivity().findViewById(android.R.id.content);
         parent.removeView( this.mView );
-        this.mPublisher.destroy();
+
+        if(this.mPublisher != null)
+          this.mPublisher.destroy();
+
         this.mPublisher = null;
     }
     
