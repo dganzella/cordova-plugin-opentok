@@ -244,12 +244,6 @@ TBUpdateObjects = function () {
         }else{
             stream = OT.session.streams[streamId];
         }
-        if (stream) {
-            if (!stream.hasVideo) {
-                position.left = 999999;
-                position.top = 999999;
-            }
-        }
 
         Cordova.exec(TBSuccess, TBError, OTPlugin, 'updateView', [streamId, position.top, position.left, position.width, position.height, TBGetZIndex(e), ratios.widthRatio, ratios.heightRatio, TBGetBorderRadius(e)]);
     }
