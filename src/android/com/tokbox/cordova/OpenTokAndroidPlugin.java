@@ -566,17 +566,20 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
         RunnableSubscriber runsub = new RunnableSubscriber( args, stream ); 
         subscriberCollection.put(stream.getStreamId(), runsub);
       }else if( action.equals( "updateView" )){
-        if( args.getString(0).equals("TBPublisher") && myPublisher != null && sessionConnected ){
-          Log.i( TAG, "updating view for publisher" );
+        
+		Log.i( TAG, "UPDATE VIEW NOT IMPLEMENTED ON ANDROID" );
+		
+		if( args.getString(0).equals("TBPublisher") && myPublisher != null && sessionConnected ){
           myPublisher.setPropertyFromArray(args);
-          cordova.getActivity().runOnUiThread(myPublisher);
+		 // myPublisher.updateView(args);
         }else{
           RunnableSubscriber runsub = subscriberCollection.get( args.getString(0) );
           if( runsub != null ){
             runsub.setPropertyFromArray( args );
-            cordova.getActivity().runOnUiThread(runsub);
+			//runsub.updateView(args);
           }
-        }
+	   }
+	   
       }else if( action.equals( "exceptionHandler" )){
 
       }
