@@ -153,6 +153,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
     PublisherKit.PublisherListener, Publisher.CameraListener{
     //  property contains: [name, position.top, position.left, width, height, zIndex, publishAudio, publishVideo, cameraName] )
     public Publisher mPublisher;
+	private boolean canInitialize = false;
 
     public RunnablePublisher( JSONArray args ){
       this.mProperty = args;
@@ -171,6 +172,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
     }
 
     public void startPublishing(){
+	  canInitialize = true;
       cordova.getActivity().runOnUiThread( this );
     }
 
@@ -187,7 +189,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
     
     public void run() {
       Log.i(TAG, "view running on UIVIEW!!!");
-      if( mPublisher == null ){
+      if( mPublisher == null && canInitialize ){
         ViewGroup frame = (ViewGroup) cordova.getActivity().findViewById(android.R.id.content);
         String publisherName;
         try{
@@ -566,20 +568,17 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
         RunnableSubscriber runsub = new RunnableSubscriber( args, stream ); 
         subscriberCollection.put(stream.getStreamId(), runsub);
       }else if( action.equals( "updateView" )){
-        
-		Log.i( TAG, "UPDATE VIEW NOT IMPLEMENTED ON ANDROID" );
-		
-		if( args.getString(0).equals("TBPublisher") && myPublisher != null && sessionConnected ){
+        if( args.getString(0).equals("TBPublisher") && myPublisher != null && sessionConnected ){
+          Log.i( TAG, "updating view for publisher" );
           myPublisher.setPropertyFromArray(args);
-		 // myPublisher.updateView(args);
+          cordova.getActivity().runOnUiThread(myPublisher);
         }else{
           RunnableSubscriber runsub = subscriberCollection.get( args.getString(0) );
           if( runsub != null ){
             runsub.setPropertyFromArray( args );
-			//runsub.updateView(args);
+            cordova.getActivity().runOnUiThread(runsub);
           }
-	   }
-	   
+        }
       }else if( action.equals( "exceptionHandler" )){
 
       }
