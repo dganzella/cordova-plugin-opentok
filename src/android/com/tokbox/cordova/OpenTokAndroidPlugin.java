@@ -225,7 +225,11 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
 		
         mSession.publish(mPublisher);
       }
-      super.run();
+	  
+	  if(mPublisher != null)
+	  {
+		  super.run();
+	  }
     }
     
     // event listeners
