@@ -79,36 +79,6 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
         }
     }
 
-    public void updateZIndices()
-	{
-      allStreamViews =  new ArrayList<RunnableUpdateViews>();
-      for (Map.Entry<String, RunnableSubscriber> entry : subscriberCollection.entrySet() ) { 
-        allStreamViews.add( entry.getValue() ); 
-      }
-      if( myPublisher != null ){
-        allStreamViews.add( myPublisher ); 
-      }
-      Collections.sort( allStreamViews, new CustomComparator() );
-
-      for( RunnableUpdateViews viewContainer : allStreamViews )
-	  {
-        ViewGroup parent = (ViewGroup) cordova.getActivity().findViewById(android.R.id.content);
-        if (null != parent) {
-          parent.removeView( viewContainer.mView );
-          parent.addView(viewContainer.mView );
-        }
-      }
-	  
-	  if(isVideoOnBackGround)
-	  {
-		_webView.getView().setBackgroundColor(0x00000000); //transparent cordova webview
-		_webView.getView().bringToFront();
-		
-		((View)_webView.getView().getParent()).invalidate();
-		((View)_webView.getView().getParent()).requestLayout();
-	  }
-    }
-
     public int getZIndex(){
       try{
         return mProperty.getInt(5); 
@@ -145,7 +115,6 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
           params.height = (int) (mProperty.getInt(4) * heightRatio);
           params.width = (int) (mProperty.getInt(3) * widthRatio);
           mView.setLayoutParams(params);
-          updateZIndices();
         }catch( Exception e ){
           Log.i(TAG, "error when trying to retrieve properties while resizing properties");
         }
@@ -218,7 +187,14 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
           Log.i(TAG, "error when trying to retrieve publish audio/video property");
         }
         this.mView = mPublisher.getView();
-        frame.addView( this.mView );
+        	
+        if(isVideoOnBackGround)
+        {
+          frame.addView( this.mView, 0 );
+        }
+        else{
+          frame.addView( this.mView);
+        }
 		
         mSession.publish(mPublisher);
       }
@@ -304,7 +280,13 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
         mSubscriber.setSubscriberListener(this);
         ViewGroup frame = (ViewGroup) cordova.getActivity().findViewById(android.R.id.content);
         this.mView = mSubscriber.getView();
-        frame.addView( this.mView );
+        if(isVideoOnBackGround)
+        {
+          frame.addView( this.mView, 0 );
+        }
+        else{
+          frame.addView( this.mView);
+        }
         mSession.subscribe(mSubscriber);
         Log.i(TAG, "subscriber view is added to parent view!");
       }
@@ -421,6 +403,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
             @Override
             public void run() {
                 _cordova.getActivity().getWindow().getDecorView().setBackgroundColor(0xFFFFFFFF); // app background
+                _webView.getView().setBackgroundColor(0x00000000);
             }
         });      
       }
