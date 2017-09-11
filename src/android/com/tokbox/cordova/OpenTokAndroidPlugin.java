@@ -102,7 +102,10 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
 	  if(isVideoOnBackGround)
 	  {
 		_webView.getView().setBackgroundColor(0x00000000); //transparent cordova webview
-		_webView.getView().bringToFront();	  
+		_webView.getView().bringToFront();
+		
+		((View)_webView.getView().getParent()).invalidate();
+		((View)_webView.getView().getParent()).requestLayout();
 	  }
     }
 
@@ -217,12 +220,6 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
         this.mView = mPublisher.getView();
         frame.addView( this.mView );
 		
-		if(isVideoOnBackGround)
-		{
-			_webView.getView().setBackgroundColor(0x00000000); //transparent cordova webview
-			_webView.getView().bringToFront();	  
-		}
-		
         mSession.publish(mPublisher);
       }
 	  
@@ -308,13 +305,6 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
         ViewGroup frame = (ViewGroup) cordova.getActivity().findViewById(android.R.id.content);
         this.mView = mSubscriber.getView();
         frame.addView( this.mView );
-		
-		 if(isVideoOnBackGround)
-		 {
-			 _webView.getView().setBackgroundColor(0x00000000); //transparent cordova webview
-			_webView.getView().bringToFront();	  
-		 }
-		
         mSession.subscribe(mSubscriber);
         Log.i(TAG, "subscriber view is added to parent view!");
       }
