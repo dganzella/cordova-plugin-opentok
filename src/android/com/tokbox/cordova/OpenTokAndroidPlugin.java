@@ -64,7 +64,8 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
   static JSONObject viewList = new JSONObject();
   static CordovaInterface _cordova;
   static CordovaWebView _webView;
-
+  
+  private String SubscriberStreamIdToRemove;
 
   public class RunnableUpdateViews implements Runnable{
     public JSONArray mProperty;
@@ -705,19 +706,21 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
   @Override
   public void onStreamDropped(Session arg0, Stream arg1) {
     Log.i(TAG, "session dropped stream");
-    streamCollection.remove( arg1.getStreamId() );
-    RunnableSubscriber subscriber = subscriberCollection.get( arg1.getStreamId() );
-    if(subscriber != null){
-		
-		cordova.getActivity().runOnUiThread(new Runnable() {
-			  @Override
-			  public void run() {
-				subscriber.destroySubscriber();
-			 }
-		 });
-		  
-      subscriberCollection.remove( arg1.getStreamId() );
-    }
+    SubscriberStreamIdToRemove = arg1.getStreamId();
+	
+	cordova.getActivity().runOnUiThread(new Runnable() {
+		  @Override
+		  public void run()
+		{
+		  RunnableSubscriber subscriber = subscriberCollection.get( SubscriberStreamIdToRemove );
+
+		  if(subscriber != null)
+		  {
+			subscriber.destroySubscriber();
+			subscriberCollection.remove( SubscriberStreamIdToRemove );
+		  }
+		 }
+	 });
   
     triggerStreamDestroyed( arg1, "sessionEvents");
   }
