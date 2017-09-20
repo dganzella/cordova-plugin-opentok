@@ -659,7 +659,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
 		  
         for (Map.Entry<String, RunnableSubscriber> entry : subscriberCollection.entrySet() )
 		{ 
-			entry.destroySubscriber();
+			entry.getValue().destroySubscriber();
         }
 		  
 		subscriberCollection.clear();
