@@ -127,7 +127,8 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
     public Publisher mPublisher;
 	private boolean canInitialize = false;
 
-    public RunnablePublisher( JSONArray args ){
+    public RunnablePublisher( JSONArray args )
+	{
       this.mProperty = args;
 
       // prevent dialog box from showing because it causes crash
@@ -139,24 +140,28 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
       edit.commit();
     }
 
-    public void setPropertyFromArray( JSONArray args ){
+    public void setPropertyFromArray( JSONArray args )
+	{
       this.mProperty = args;
     }
 
-    public void startPublishing(){
+    public void startPublishing()
+	{
 	  canInitialize = true;
       cordova.getActivity().runOnUiThread( this );
     }
 
 
-    public void destroyPublisher(){
+    public void destroyPublisher()
+	{
       ViewGroup parent = (ViewGroup) cordova.getActivity().findViewById(android.R.id.content);
         parent.removeView( this.mView );
 
         if(this.mPublisher != null)
-          this.mPublisher.destroy();
-
-        this.mPublisher = null;
+		{
+			this.mPublisher.destroy();
+			this.mPublisher = null;
+		}
     }
     
     public void run() {
@@ -252,54 +257,87 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
     //  property contains: [stream.streamId, position.top, position.left, width, height, subscribeToVideo, zIndex] )
     public Subscriber mSubscriber;
     public Stream mStream;
+	private boolean markUnsubscribe = false;
+	private boolean markSubscribe = false;
+	private boolean subscribed = false;
 
-    public RunnableSubscriber( JSONArray args, Stream stream ){
+    public RunnableSubscriber( JSONArray args, Stream stream )
+	{
       this.mProperty = args;
       mStream = stream;
-      cordova.getActivity().runOnUiThread( this );
     }
 
-    public void setPropertyFromArray( JSONArray args ){
+    public void setPropertyFromArray( JSONArray args )
+	{
       this.mProperty = args;
     }
     
-    public void removeStreamView(){
-      ViewGroup frame = (ViewGroup) cordova.getActivity().findViewById(android.R.id.content);
-      frame.removeView( this.mView );
+    public void destroySubscriber()
+	{
+	  ViewGroup frame = (ViewGroup) cordova.getActivity().findViewById(android.R.id.content);
+	  frame.removeView( this.mView );
 
-      if(mSubscriber != null)
-        mSubscriber.destroy();
+	  if(mSubscriber != null){
+		mSubscriber.destroy();
+		mSubscriber = null;
+	  }
     }
+	
+	public void subscribe(){
+		if(!subscribed){
+			subscribed = true;
+			markSubscribe = true;
+			cordova.getActivity().runOnUiThread( this );	
+		}
+	}
+	
+	public void unsubscribe(){
+		if(subscribed){
+			subscribed = false;
+			markUnsubscribe = true;
+			cordova.getActivity().runOnUiThread( this );
+		}
+	}
 
-    public void run() {
-      if( mSubscriber == null ){
-        logMessage("NEW SUBSCRIBER BEING CREATED");
-        mSubscriber = new Subscriber(cordova.getActivity(), mStream);
-        mSubscriber.setRenderer(new FaceRecognitionOpentokRenderer(cordova.getActivity().getApplicationContext()));
-        mSubscriber.setVideoListener(this);
-        mSubscriber.setSubscriberListener(this);
-        ViewGroup frame = (ViewGroup) cordova.getActivity().findViewById(android.R.id.content);
-        this.mView = mSubscriber.getView();
-        if(isVideoOnBackGround)
-        {
-          frame.addView( this.mView, 0 );
-        }
-        else{
-          frame.addView( this.mView);
-        }
-        mSession.subscribe(mSubscriber);
-        Log.i(TAG, "subscriber view is added to parent view!");
-      }
-      super.run();
+    public void run()
+	{
+	  if( mSubscriber == null )
+	  {
+		logMessage("NEW SUBSCRIBER BEING CREATED");
+		mSubscriber = new Subscriber(cordova.getActivity(), mStream);
+		mSubscriber.setRenderer(new FaceRecognitionOpentokRenderer(cordova.getActivity().getApplicationContext()));
+		mSubscriber.setVideoListener(this);
+		mSubscriber.setSubscriberListener(this);
+		this.mView = mSubscriber.getView();
+	  }
+	  
+	  if(markUnsubscribe)
+	  {
+		ViewGroup frame = (ViewGroup) cordova.getActivity().findViewById(android.R.id.content);
+		frame.removeView( this.mView );
+		
+		mSession.unsubscribe(mSubscriber);
+		markUnsubscribe = false;
+	  }
+	  
+	  if(markSubscribe)
+	  {
+		ViewGroup frame = (ViewGroup) cordova.getActivity().findViewById(android.R.id.content);
+		
+		if(isVideoOnBackGround)
+		{
+		  frame.addView( this.mView, 0 );
+		}
+		else{
+		  frame.addView( this.mView);
+		}
+		
+		mSession.subscribe(mSubscriber);
+		markSubscribe = false;
+	  }
+	  
+	  super.run();
     }
-
-    public void unsubscribe() {
-      mSession.unsubscribe(mSubscriber);
-      ViewGroup frame = (ViewGroup) cordova.getActivity().findViewById(android.R.id.content);
-      frame.removeView( this.mView );
-      mSubscriber = null;
-    }
-    
 
     // listeners
     @Override
@@ -460,21 +498,21 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
       else  if( action.equals("initPublisher")){
         myPublisher = new RunnablePublisher( args );
       }else if( action.equals( "destroyPublisher" )){
-      if( myPublisher != null ){
+		  
          cordova.getActivity().runOnUiThread(new Runnable() {
               @Override
               public void run() {
 
-                if(myPublisher != null)
-                  myPublisher.destroyPublisher();
-                
-                myPublisher = null;
+                if(myPublisher != null)]
+				{
+					myPublisher.destroyPublisher();
+					myPublisher = null;
+				} 
              }
          });
 
          callbackContext.success();
          return true;
-      }
       }else if( action.equals( "initSession" )){
         Log.i( TAG, "created new session with data: "+args.toString());
         mSession = new Session(this.cordova.getActivity().getApplicationContext(), args.getString(0), args.getString(1));
@@ -530,21 +568,32 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
         }else{
           mSession.sendSignal(args.getString(0), args.getString(1), c);
         }
-      }else if( action.equals( "unpublish" )){
-
       }else if( action.equals( "unsubscribe" )){
 
         Log.i( TAG, "unsubscribe command called");
         Log.i( TAG, "unsubscribe data: " + args.toString() );
         RunnableSubscriber runsub = subscriberCollection.get( args.getString(0) );
-        runsub.unsubscribe();
+		
+		if(runsub != null){
+		    runsub.unsubscribe();
+		}
       }else if( action.equals( "subscribe" )){
         Log.i( TAG, "subscribe command called");
         Log.i( TAG, "subscribe data: " + args.toString() );
         Stream stream = streamCollection.get( args.getString(0) );
-        RunnableSubscriber runsub = new RunnableSubscriber( args, stream ); 
-        subscriberCollection.put(stream.getStreamId(), runsub);
-      }else if( action.equals( "updateView" )){
+		
+		RunnableSubscriber runsub = subscriberCollection.get( stream.getStreamId());
+		
+		if(runsub == null)
+		{
+		    runsub = new RunnableSubscriber( args, stream ); 
+			subscriberCollection.put(stream.getStreamId(), runsub);	
+		}
+		
+		runsub.subscribe();
+      }
+	  else if( action.equals( "updateView" ))
+	  {
         if( args.getString(0).equals("TBPublisher") && myPublisher != null && sessionConnected ){
           Log.i( TAG, "updating view for publisher" );
           myPublisher.setPropertyFromArray(args);
@@ -600,16 +649,17 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
     
     cordova.getActivity().runOnUiThread(new Runnable() {
       @Override
-      public void run() {
-        ViewGroup parent = (ViewGroup) cordova.getActivity().findViewById(android.R.id.content);
-          if( myPublisher != null ){
+      public void run()
+	  {
+          if( myPublisher != null )
+		  {
             myPublisher.destroyPublisher();
             myPublisher = null;
           }
-          for (Map.Entry<String, RunnableSubscriber> entry : subscriberCollection.entrySet() ) { 
-              if (null != parent) {
-                parent.removeView( entry.getValue().mView  );
-              }
+		  
+          for (Map.Entry<String, RunnableSubscriber> entry : subscriberCollection.entrySet() )
+		  { 
+			entry.destroySubscriber();
           } 
      }
    });
@@ -659,7 +709,14 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
     streamCollection.remove( arg1.getStreamId() );
     RunnableSubscriber subscriber = subscriberCollection.get( arg1.getStreamId() );
     if(subscriber != null){
-      subscriber.removeStreamView();
+		
+		cordova.getActivity().runOnUiThread(new Runnable() {
+			  @Override
+			  public void run() {
+				subscriber.destroySubscriber();
+			 }
+		 });
+		  
       subscriberCollection.remove( arg1.getStreamId() );
     }
   
@@ -827,10 +884,17 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
   
   @Override
   public void onStreamDestroyed(PublisherKit arg0, Stream arg1) {
-      if(myPublisher != null){
-          myPublisher.destroyPublisher();
-          myPublisher = null;
-        }
+	 cordova.getActivity().runOnUiThread(new Runnable() {
+		  @Override
+		  public void run() {
+
+			if(myPublisher != null)
+			{
+			  myPublisher.destroyPublisher();
+			  myPublisher = null;
+			}
+		 }
+	 });
   }
   
   @Override
