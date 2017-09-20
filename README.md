@@ -10,3 +10,4 @@ This is a fork of IjzerenHein/cordova-plugin-opentok plugin with these added fun
 - Added Reconnecting and Reconnected events.
 - Updated Android opentok to latest version.
 - Tried to update iOS opentok to latest version but the binary .framework file is bigger than 100 MB and github gave some large file error idk. So in order to properly update you need to download the latest opentok framework from opentok website, unzip, and then replace the OpenTok.framework file in platforms/ios/TutorIQ/Plugins/com.tokbox.cordova.opentok/OpenTok.framework. (use Replace!! Do not merge).
+- Properly implemented subscribe/unsubscribe on android. (there was a bug when unsubscribe wouldnt remove the view because the remove was not in a ui tread). Also now developer can unsubscribe/subscribe without need of creating new RunnableSubscribers for the same stream.
