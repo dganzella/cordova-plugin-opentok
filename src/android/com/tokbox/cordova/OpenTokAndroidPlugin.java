@@ -503,7 +503,7 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
               @Override
               public void run() {
 
-                if(myPublisher != null)]
+                if(myPublisher != null)
 				{
 					myPublisher.destroyPublisher();
 					myPublisher = null;
