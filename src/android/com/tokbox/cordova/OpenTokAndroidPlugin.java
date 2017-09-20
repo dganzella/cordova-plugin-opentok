@@ -651,23 +651,22 @@ public class OpenTokAndroidPlugin extends CordovaPlugin implements
       @Override
       public void run()
 	  {
-          if( myPublisher != null )
-		  {
+        if( myPublisher != null )
+		{
             myPublisher.destroyPublisher();
             myPublisher = null;
-          }
+        }
 		  
-          for (Map.Entry<String, RunnableSubscriber> entry : subscriberCollection.entrySet() )
-		  { 
+        for (Map.Entry<String, RunnableSubscriber> entry : subscriberCollection.entrySet() )
+		{ 
 			entry.destroySubscriber();
-          } 
+        }
+		  
+		subscriberCollection.clear();
+		connectionCollection.clear();
+		streamCollection.clear();
      }
    });
-
-    // delete all data and prevent updateviews from drawing non existent things
-    subscriberCollection.clear();
-    connectionCollection.clear();
-    streamCollection.clear();
 
     JSONObject data = new JSONObject();   
     try{
