@@ -34,6 +34,8 @@
 		<meta-data android:name="com.google.android.gms.vision.DEPENDENCIES" android:value="face"/>
 	  </config-file>
 
+      <source-file src="src/android/libs/opentok-android-sdk-2.12.1.aar" target-dir="libs/opentok/" />
+
       <config-file target="config.xml" parent="/*">
         <feature name="OpenTokPlugin">
           <param name="android-package" value="com.tokbox.cordova.OpenTokAndroidPlugin"/>
