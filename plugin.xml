@@ -12,7 +12,7 @@
     <platform name="android">
       <framework src="build-extras.gradle" custom="true" type="gradleReference" />
 	  <framework src="com.google.android.gms:play-services-vision:11.0.4" />
-	  <framework src="com.opentok.android:opentok-android-sdk:2.12.1" />
+	  <!-- <framework src="com.opentok.android:opentok-android-sdk:2.12.1" /> -->
 	  
       <asset src="www/opentok.js" target="opentok.js" />
 
