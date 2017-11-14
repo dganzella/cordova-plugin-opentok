@@ -35,10 +35,10 @@
 		<meta-data android:name="com.google.android.gms.vision.DEPENDENCIES" android:value="face"/>
 	  </config-file>
 
-      <!--<source-file src="src/android/libs/opentok-android-sdk-2.12.1.aar" target-dir="libs/armeabi" />
+      <source-file src="src/android/libs/opentok-android-sdk-2.12.1.aar" target-dir="libs/armeabi" />
       <source-file src="src/android/libs/opentok-android-sdk-2.12.1.aar" target-dir="libs/armeabi-v7a" />
       <source-file src="src/android/libs/opentok-android-sdk-2.12.1.aar" target-dir="libs/x86" />
-      <source-file src="src/android/libs/opentok-android-sdk-2.12.1.aar" target-dir="libs/" />-->
+      <source-file src="src/android/libs/opentok-android-sdk-2.12.1.aar" target-dir="libs/" />
 
       <config-file target="config.xml" parent="/*">
         <feature name="OpenTokPlugin">
